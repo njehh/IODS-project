@@ -8,4 +8,6 @@ date()
 ```
 I found about the course from my PhD programme's mailing list. I hope that I learn more about using R and GitHub. At least setting up the GitHub and RStudio was easy. I have some previous experience with R, but I don't use it regularly. 
 
+Exercise set was nice warmup, but nothing too special. I wasn't familiar with pipes operator (%>%) which seems like an useful option for writing R code. Tibbles were also a new thing for me. I had only used dataframes before, so its nice to learn that there is a better option.
+
 GitHub link: https://github.com/njehh/IODS-project
