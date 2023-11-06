@@ -9,5 +9,6 @@
 date()
 
 ```
-The text continues here.
+I found about the course from my PhD programme's mailing list. I hope that I learn more about using R and GitHub. I have some previous experience with R, but I don't use it regularly.
 
+GitHub link: https://github.com/njehh/IODS-project
