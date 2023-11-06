@@ -4,11 +4,8 @@
 *Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
 
 ```{r}
-# This is a so-called "R chunk" where you can write R code.
-
 date()
-
 ```
-I found about the course from my PhD programme's mailing list. I hope that I learn more about using R and GitHub. I have some previous experience with R, but I don't use it regularly.
+I found about the course from my PhD programme's mailing list. I hope that I learn more about using R and GitHub. At least setting up the GitHub and RStudio was easy. I have some previous experience with R, but I don't use it regularly. 
 
 GitHub link: https://github.com/njehh/IODS-project
