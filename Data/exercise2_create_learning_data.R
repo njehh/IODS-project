@@ -9,7 +9,7 @@ learning_data <- read_tsv("JYTOPKYS3-data.txt")
 learning_data %>% dim()
 #dataset has 183 rows and 60 columns
 
-learning_data %>% spec()
+learning_data %>% str()
 learning_data %>% names()
 # Column names are:  
 #"Aa"       "Ab"       "Ac"       "Ad"       "Ae"       "Af"       "ST01"     "SU02"     "D03"      "ST04"    
@@ -20,29 +20,51 @@ learning_data %>% names()
 #"De"       "Df"       "Dg"       "Dh"       "Di"       "Dj"       "Age"      "Attitude" "Points"   "gender"  
 
 # 3.
-#Variables for the exercise dataset: gender, age, attitude, deep, stra, surf and points
-#gender   Male = 1  Female = 2
-#Age      Age (in years) derived from the date of birth
-
-
+#Pick variables for the exercise dataset: gender, age, attitude, deep, stra, surf and points
 
 #Attitude Global attitude toward statistics ~Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj
+learning_data <- learning_data %>%  
+  mutate(attitude = Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj)
 
 
 #Deep     Deep approach             ~d_sm+d_ri+d_ue
 #   d_sm     Seeking Meaning           ~D03+D11+D19+D27
 #   d_ri     Relating Ideas            ~D07+D14+D22+D30
 #   d_ue     Use of Evidence           ~D06+D15+D23+D31
+learning_data <- learning_data %>% 
+  mutate(deep = D03+D11+D19+D27+D07+D14+D22+D30+D06+D15+D23+D31)
+
 #Stra     Strategic approach        ~st_os+st_tm
 #   st_os    Organized Studying        ~ST01+ST09+ST17+ST25
 #   st_tm    Time Management           ~ST04+ST12+ST20+ST28
+learning_data <- learning_data %>% 
+  mutate(stra = ST01+ST09+ST17+ST25+ST04+ST12+ST20+ST28)
+
 #Surf     Surface approach          ~su_lp+su_um+su_sb
     #su_lp    Lack of Purpose           ~SU02+SU10+SU18+SU26
     #su_um    Unrelated Memorising      ~SU05+SU13+SU21+SU29
     #su_sb    Syllabus-boundness        ~SU08+SU16+SU24+SU32
-#Points   Yhteispisteet (max kaikista)
+learning_data <- learning_data %>%
+  mutate(surf = SU02+SU10+SU18+SU26+SU05+SU13+SU21+SU29+SU08+SU16+SU24+SU32)
 
+#Scale variables
+learning_data_scaled <- learning_data %>% 
+  mutate(
+    attitude = attitude/10,
+    deep = deep/12,
+    stra = stra/8,
+    surf = surf/12,
+    age = Age, #rename variable
+    points = Points) #rename variable
 
+#Points   Exam points
+# Exclude those with 0 exam points
+learning_data_excluded <- learning_data_scaled %>% filter(Points != 0)
 
-# Lets start by excluding those with 0 exam points
-not_0 <- learning_data %>% filter(Points != 0) 
+#Select columns
+learning_data_final <- learning_data_excluded %>% 
+  select(gender, age, attitude, deep, stra, surf, points)
+
+#Export data
+learning_data_final %>% 
+  write_csv(file = "learning2023.csv")
