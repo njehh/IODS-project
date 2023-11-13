@@ -1,13 +1,119 @@
-# Insert chapter 2 title here
-
-*Describe the work you have done this week and summarize your learning.*
-
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+# Assignment 2 data analysis
 
 ```{r}
 date()
 ```
 
 Here we go again...
+
+1.  **Let's start by reading the data into R**
+
+```{r}
+library(readr)
+library(tidyverse)
+learning2023 <- read_csv("~/IODS-project/Data/learning2023.csv")
+str(learning2023)
+```
+
+The data are from a survey related to learning statistics from a statistics course organized in 2014. It includes data from 166 participants (rows). Columns have responder demographic information (age and gender), exam points (points), and attitude towards learning statistics. The central measure is learning method measured by three dimensions (deep, surface and strategic).
+
+2.  **Exploring the data**
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+theme_set(theme_bw())
+
+ages <- learning2023 %>% 
+    ggplot(aes(x = age)) +
+    geom_histogram(binwidth = 2, fill = "lightblue") +
+    geom_vline(xintercept=mean(learning2023$age), color = "red")
+
+
+gen <- learning2023 %>% 
+    ggplot(aes(x = gender, y = points, colour = gender)) +
+    geom_boxplot()+
+    geom_jitter() +
+    labs(colour = "Gender ( F = ")
+
+ggarrange(ages, gen,
+    labels = c("A", "B"),
+    ncol = 2, nrow = 1)
+
+  
+```
+
+***Figure A** shows age distribution of the participants, the red line indicates the mean. **B** shows the distribution of exam points by gender.*
+
+Most of the participants are between 20 to 30 years old. There is no clear difference in the test scores by gender.
+
+```{r}
+
+att <- learning2023 %>% 
+  ggplot(aes(y = points, x = attitude, colour = gender)) +
+  geom_point()
+
+dee <- learning2023 %>% 
+  ggplot(aes(y = points, x = deep, colour = gender)) +
+  geom_point()+
+  geom_vline(xintercept=mean(learning2023$deep), color = "red")
+
+sta <- learning2023 %>% 
+  ggplot(aes(y = points, x = stra, colour = gender)) +
+  geom_point()
+
+sur <- learning2023 %>% 
+  ggplot(aes(y = points, x = surf, colour = gender)) +
+  geom_point()
+
+ggarrange(att, dee, sta, sur,
+    labels = c("C", "D", "E", "F"),
+    ncol = 2, nrow = 2)
+```
+
+*Exam points plotted againts attitude towards statistics **(C)**, and approach to learning : deep **(D)**, strategic **(E)** , and surface **(F)** approach.*
+
+Attitude towards statistics seems to correlate quite well with the exam points. The mean of deep approach is quite high (red vertical line in the plot), and distribution is towards the high end of the scale. No clear correlation between strategic approach and the exam points can be seen. Based on the visualization, it seems that there may be negative correlation between surface approach and exam points.
+
+```{r}
+learning2023 %>% 
+  group_by(gender) %>% 
+  summarise(mean(age), mean(points),mean(attitude), mean(deep), mean(stra), mean(surf))
+```
+
+**3. and 4.  Linear regression**
+
+```{r}
+model1 <- learning2023 %>% 
+  lm(points ~ gender+age+attitude, data =.)
+
+summary(model1)
+```
+The P-value of the model is 5.5x10^-8^. Based on the multiple R-squared value, the model explains 20% of the variation in the exam scores. 
+There is statistically significant correlation between attitude and exam points (*P*=8.3x10^-9^). It seems that better attitude towards statistics yields higher points in the exam.
+Gender or age were not statistically significant predictors of exam points, thus we remove them from the model.
+
+```{r}
+model2 <- learning2023 %>% 
+  lm(points ~ attitude, data =.)
+
+summary(model2)
+```
+When age and gender were removed from the model, attitude remained as significant variable. The P-value of the model is now a little bit smaller (*P*=4.1^-9^). Based on this model, attitude correlates with exam results. The estimate trend is positive, which means that attitude has positive correlation with exam points.
+Multiple R-squared of the model is  0.19, which means that attitude explains 19% of the variation in exam scores in this dataset.
+
+**5. Plotting the linear regression**
+
+
+```{r}
+library("ggfortify")
+autoplot(model2)
+```
+Residuals vs fitted values plot tells whether the residuals vary depending on the fitted value. Based on the plot it seems that fitted values don't affect the residuals. Mean (blue line) seems to be a horizontal line.
+
+In the QQ-plot there are few outliers in the extreme ends. However, in the middle part it seems to correlate quite well.
+
+In the residuals vs leverage plot, observations seem to be within the Cook's distance. 
+
+In conclusion, based on the model it seems that motivation towards statistics has positive correlation with exam points. The residual plots and normal QQ-plot seem to be ok. There are few outlier, which can be seen especially in the QQ-plot but otherwise it looks okay. At least it seems that there is not any systematic problem with the data. There are few outlier in the dataset, but it does not have big impact on the results. 
+
