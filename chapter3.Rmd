@@ -1,0 +1,107 @@
+# Assignment 3 data analysis
+
+```{r}
+date()
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(finalfit)
+theme_set(theme_bw())
+```
+
+**2. reading the data**
+
+```{r}
+student_data <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv")
+
+glimpse(student_data)
+```
+
+The dataset includes data from two Portuguese schools. It includes data for 370 students (rows) and 35 different attributes (columns). It has data for two student demographics such as sex, age and home address type (urban or rural). For student performance it includes data from Math and Portuguese classes from three grades.
+
+##Exploring student alcohol consumption
+
+**3. setting the study hypothesis**
+
+I decided to study how sex, address, paid, and absences may affect alcohol use. My hypothesis is that males use more alcohol than females. "address" variable tells if the student's home address is rural (R) or urban (U), and I think that there may be differences between urban and rural locations. "paid" variable tell if student paid for extra classes in either of the subjects (math or portugal). My hypothesis is that those who paid for extra classes drink less alcohol. "absences" is the number of student's school absences. My hypothesis is that those who drink more alcohol have more absences.
+
+```{r}
+#creating dataset with only the selected variables
+model_data <- student_data %>% 
+  select(sex, address, paid, absences, alc_use, high_use) %>% 
+  mutate(high.use.factor = as.factor(high_use) %>% #create factor variable of high use column
+           recode_factor("FALSE" ="low", 
+                         "TRUE" = "high",) %>% 
+           ff_label("Alcohol use")) 
+  
+glimpse(model_data)
+```
+**4. Exploration of the data**
+
+*Graphical exploration*
+
+```{r}
+model_data %>% 
+  ggplot(aes(x = high_use))+
+  geom_bar(colour = "blue", fill="lightblue")+
+  facet_wrap(~sex)+
+  labs(x="High alcohol use", title = "Alcohol use by sex")
+```
+
+Based on the visual inspection, it seems that high alcohol use is more common among men.
+
+```{r}
+model_data %>% 
+  ggplot(aes(x = high_use))+
+  geom_bar(colour = "forestgreen", fill="lightgreen")+
+  facet_wrap(~address)+
+  labs(x="High alcohol use", title="Rural (R) and urban (U)")
+```
+
+It seems that high alcohol use is more common in rural areas than in urban areas.
+
+```{r}
+model_data %>% 
+  ggplot(aes(x = high_use))+
+  geom_bar(colour = "orange", fill="yellow")+
+  facet_wrap(~paid)+
+  labs(x="High alcohol use", title = "Paid for extra classes")
+```
+No clear difference is seen between those who paid for extra classes and those did not. There seems to be weak tendency towards high alcohol use in those who paid for extra classes.
+
+
+```{r}
+model_data %>% 
+  ggplot(aes(y = high_use, x=absences))+
+  geom_boxplot(colour = "red", fill="coral")+
+  labs(y="High alcohol use", x = "Absences", title = "High alcohol use and school absences")
+```
+It seems that high alcohol use correlates with school absences.
+
+*Numerical exploration*
+
+```{r}
+model_data %>% 
+  summary_factorlist("high_use", c("sex", "address", "paid", "absences"),
+                     cont = "mean", p = T, add_dependent_label = TRUE)
+```
+As was seen in the graphical exploration, males have statistically higher portion of high use of alcohol. It seems that the hypothesis was correct on this part. 
+
+There is no statistical significance in high alcohol between urban and rural locations. However, it seems that there is tendency towards higher alcohol use in rural areas. Hypothesis may or may not be correct.
+
+There is no difference in alcohol between those who paid or did no pay for extra classes.
+
+Absences correlate with high use of alcohol as per hypothesis. The difference is statistically significant.
+
+**5. logistic regression**
+
+```{r}
+
+fit1 <- glm(high_use~sex+address+paid+absences, family = binomial, data =model_data)
+
+summary(fit1)
+
+```
+
