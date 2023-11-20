@@ -201,7 +201,7 @@ Hint:
 # dplyr, math_por, join_by are available
 
 # print out the column names of 'math_por'
-
+colnames(math_por)
 
 # create a new data frame with only the joined columns
 alc <- select(math_por, all_of(join_cols))

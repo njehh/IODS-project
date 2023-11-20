@@ -11,7 +11,7 @@ Here we go again...
 ```{r}
 library(readr)
 library(tidyverse)
-learning2023 <- read_csv("~/IODS-project/Data/learning2023.csv")
+learning2023 <- read_csv("https://raw.githubusercontent.com/njehh/IODS-project/master/Data/learning2023.csv")
 str(learning2023)
 ```
 

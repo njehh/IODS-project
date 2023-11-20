@@ -8,6 +8,7 @@ date()
 library(tidyverse)
 library(ggplot2)
 library(finalfit)
+library(broom)
 theme_set(theme_bw())
 ```
 
@@ -25,7 +26,10 @@ The dataset includes data from two Portuguese schools. It includes data for 370 
 
 **3. setting the study hypothesis**
 
-I decided to study how sex, address, paid, and absences may affect alcohol use. My hypothesis is that males use more alcohol than females. "address" variable tells if the student's home address is rural (R) or urban (U), and I think that there may be differences between urban and rural locations. "paid" variable tell if student paid for extra classes in either of the subjects (math or portugal). My hypothesis is that those who paid for extra classes drink less alcohol. "absences" is the number of student's school absences. My hypothesis is that those who drink more alcohol have more absences.
+I decided to study how sex, address, paid, and absences may affect alcohol use. My hypothesis is that males use more alcohol than females. 
+*address* variable tells if the student's home address is rural (R) or urban (U), and I think that there may be differences between urban and rural locations. 
+*paid* variable tell if student paid for extra classes in either of the subjects (math or portugal). My hypothesis is that those who paid for extra classes drink less alcohol. 
+*absences* is the number of student's school absences. My hypothesis is that those who drink more alcohol have more absences.
 
 ```{r}
 #creating dataset with only the selected variables
@@ -60,7 +64,7 @@ model_data %>%
   labs(x="High alcohol use", title="Rural (R) and urban (U)")
 ```
 
-It seems that high alcohol use is more common in rural areas than in urban areas.
+It seems that high alcohol use is proportionally more common in rural areas than in urban areas.
 
 ```{r}
 model_data %>% 
@@ -102,6 +106,40 @@ Absences correlate with high use of alcohol as per hypothesis. The difference is
 fit1 <- glm(high_use~sex+address+paid+absences, family = binomial, data =model_data)
 
 summary(fit1)
+
+```
+```{r}
+fit1 %>% 
+  tidy(conf.int=T, exp=T) #calculate confidence intervals and transfrom back from the natural logarithm with exp() 
+```
+In the table above, estimate column tells the odd ratios, while conf.low is the lower limit and conf.high the upper limit of 95% confidence interval.
+
+In the logistic regression model sex and absences had statistically significant association.
+
+Hypothesis regarding sex was that high use of alcohol is more common among males. The logistic regression model supports this hypothesis and the odd ratio for high alcohol use is 2.95.
+
+Another hypothesis was that there is difference between rural and urban areas. The difference is not statistically significant, but the p-value is quite small (0.08), and there seems to be at least trend that alcohol use is less common in urban areas (odd ratio: 0.62, 95% confidence interval: 0.36-1.07).
+
+Hypothesis for association between paid classes and alcohol use does not seem to be correct. There was no difference according to this analysis.
+
+As per hypothesis, absences correlated with high alcohol use. P-value was small (2.9x10^-9^). For the absences the odd ratio was 1.1 and 95% confidence interval 1.06-1.16).
+
+**6. **
+
+```{r}
+fit2 <- glm(high_use~sex+absences, family = binomial, data =model_data) #new model with only statistically significant variables
+
+summary(fit2)
+```
+
+```{r}
+model_data$predict_high <- model_data %>% 
+  select(sex, absences) %>% 
+  predict.glm(fit2, newdata=.) %>% exp()
+
+model_data %>% 
+  summary_factorlist("high_use", "predict_high",
+                     cont = "mean", p = T, add_dependent_label = TRUE)
 
 ```
 
