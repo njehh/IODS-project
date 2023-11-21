@@ -9,6 +9,7 @@ library(tidyverse)
 library(ggplot2)
 library(finalfit)
 library(broom)
+library(boot)
 theme_set(theme_bw())
 ```
 
@@ -34,11 +35,7 @@ I decided to study how sex, address, paid, and absences may affect alcohol use. 
 ```{r}
 #creating dataset with only the selected variables
 model_data <- student_data %>% 
-  select(sex, address, paid, absences, alc_use, high_use) %>% 
-  mutate(high.use.factor = as.factor(high_use) %>% #create factor variable of high use column
-           recode_factor("FALSE" ="low", 
-                         "TRUE" = "high",) %>% 
-           ff_label("Alcohol use")) 
+  select(sex, address, paid, absences, alc_use, high_use)
   
 glimpse(model_data)
 ```
@@ -175,4 +172,20 @@ If we take more simple approach and predict that those who have over 6 absences 
 ```
 Training error of the simpler model is 31% which is a little bit worse than the models training error (25%).
 
+**7. cross-validation**
+```{r}
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+
+# K-fold cross-validation
+cv <- cv.glm(data = model_data, cost = loss_func, glmfit = fit2, K = nrow(model_data))
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+
+
+```
 
