@@ -133,13 +133,46 @@ summary(fit2)
 ```
 
 ```{r}
-model_data$predict_high <- model_data %>% 
-  select(sex, absences) %>% 
-  predict.glm(fit2, newdata=.) %>% exp()
+probabilities <- predict.glm(fit2, type = "response") #predict probabilites based on the glm-model
 
-model_data %>% 
-  summary_factorlist("high_use", "predict_high",
-                     cont = "mean", p = T, add_dependent_label = TRUE)
+model_data <- model_data %>% 
+    mutate(probability = probabilities,
+           prediction = probability>0.5) #create prediction variable, which is TRUE when probability > 0.5
+
+prediction_table <- table(high_use = model_data$high_use, prediction = model_data$prediction)
+prediction_table
 
 ```
+
+```{r}
+training_error <- (prediction_table[1,2] + prediction_table[2,1])/370 #proportion of correctly classified values
+training_error
+
+v1 = c("word", "ok")
+
+model_data %>% 
+  mutate(correct = high_use==prediction) %>% 
+  ggplot(aes(x = high_use, y=prediction, colour=correct))+
+  geom_point()+
+  geom_jitter()+
+  labs(colour = "Correct prediction", title = "Actual values vs. prediction (training error = 0.25)")
+```
+Model has training error of 25%. It has tendency towards underprediction of alcohol use. It predicts around 3% of false positives (8/259), but large amount of false negatives, around 77% (86/111). I would not say that this model is actually useful.
+
+```{r}
+easy_prediction <- model_data %>% 
+  mutate(high_absences = absences>6) #lets compare how well over 6 absences predict high alcohol use
+
+pred_table2 <- table(high_use = easy_prediction$high_use, prediction = easy_prediction$high_absences)
+
+pred_table2
+```
+
+If we take more simple approach and predict that those who have over 6 absences have high alcohol use we get more true positives and less true negative.
+
+```{r}
+(pred_table2[1,2] + pred_table2[2,1])/370 
+```
+Training error of the simpler model is 31% which is a little bit worse than the models training error (25%).
+
 
