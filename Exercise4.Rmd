@@ -65,10 +65,12 @@ data("Boston")
 
 # explore the dataset
 
-
+head(Boston)
+names(Boston)
+dim(Boston)
 
 # plot matrix of the variables
-
+pairs(Boston)
 
 
 ```
@@ -91,6 +93,8 @@ library(MASS)
 library(tidyr)
 library(corrplot)
 data("Boston")
+corrplot(cor(Boston))
+
 ```
 
 ### Instructions
@@ -115,11 +119,11 @@ Hints:
 cor_matrix <- cor(Boston) 
 
 # print the correlation matrix
-
+cor_matrix
 
 # visualize the correlation matrix
 library(corrplot)
-corrplot(cor_matrix, method="circle")
+corrplot(cor_matrix, method="shade")
 
 ```
 
