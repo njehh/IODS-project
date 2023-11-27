@@ -1,0 +1,17 @@
+# Assignment 4 data analysis
+
+```{r}
+date()
+```
+
+
+```{r}
+library(tidyverse)
+library(MASS)
+```
+
+```{r}
+data(Boston)
+glimpse(Boston)
+```
+
