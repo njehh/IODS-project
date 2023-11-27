@@ -1,0 +1,22 @@
+# Assignment 4 data analysis
+
+```{r}
+date()
+```
+
+
+```{r}
+library(tidyverse)
+library(MASS)
+```
+**2. Load data**
+```{r}
+data(Boston)
+glimpse(Boston)
+```
+
+Data contains housing values in suburbs of Boston. The dataset has 506 rows and 14 columns. Columns include such data as crime rate per capita by town, average number of rooms per dwelling, lower status of the population.
+
+**3. graphical overview**
+
+
