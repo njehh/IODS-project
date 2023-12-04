@@ -34,13 +34,12 @@ areas <- c("Arab States", "East Asia and the Pacific", "Europe and Central Asia"
 
 human_final <- subset(human_na.rm, !Country %in% areas) #remove rows where Country is included in the 'areas' vector
 
-#5. Export data
+#5. Write data
 
 str(human_final) #includes 155 rows and 9 columns
 names(human_final) #includes correct columns
 
 setwd("~/IODS-project/Data")
 write_csv(human_final, "human.csv")
-
 
 

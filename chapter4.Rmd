@@ -8,16 +8,15 @@ date()
 ```{r}
 library(tidyverse)
 library(MASS)
-<<<<<<< HEAD
 ```
 **2. Load data**
 =======
+```{r}
 library(corrplot)
 library(ggplot2)
 library(GGally)
 ```
 **2. Reading the data**
->>>>>>> 62b5a878149f9af71cd141650eba54bde9d88e68
 ```{r}
 data(Boston)
 glimpse(Boston)
@@ -117,6 +116,6 @@ classes <- as.numeric(train$crime)
 plot(lda.fit, dimen = 2,col = classes, pch = classes)
 lda.arrows(lda.fit, myscale = 2)
 ```
->>>>>>> 62b5a878149f9af71cd141650eba54bde9d88e68
+
 
 
