@@ -8,15 +8,115 @@ date()
 ```{r}
 library(tidyverse)
 library(MASS)
+<<<<<<< HEAD
 ```
 **2. Load data**
+=======
+library(corrplot)
+library(ggplot2)
+library(GGally)
+```
+**2. Reading the data**
+>>>>>>> 62b5a878149f9af71cd141650eba54bde9d88e68
 ```{r}
 data(Boston)
 glimpse(Boston)
 ```
 
+<<<<<<< HEAD
 Data contains housing values in suburbs of Boston. The dataset has 506 rows and 14 columns. Columns include such data as crime rate per capita by town, average number of rooms per dwelling, lower status of the population.
 
 **3. graphical overview**
+=======
+The data contains housing information from Boston. It has 506 rows and 14 columns. It includes data for different areas. For example it includes crime rate, average number of rooms per dwelling and property-tax rate.
+
+**3. Exploring the data**
+
+
+```{r}
+pairs(Boston)
+```
+
+```{r}
+cor_matrix <- cor(Boston) %>% 
+  round(digits = 2)
+
+corrplot(cor_matrix, method="shade", type = "lower",cl.pos = "b", tl.pos = "d")
+
+```
+There is negative and positive correlation between the variables.
+
+```{r}
+summary(Boston)
+```
+
+
+**4. Standardizing the data**
+
+```{r}
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+```
+Create categorical crime variable
+```{r}
+boston_scaled <- data.frame(boston_scaled) # convert to data frame
+bins <- quantile(boston_scaled$crim)
+
+# create a categorical variable 'crime'
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+
+
+# remove original crim from the dataset
+boston_scaled_ <- dplyr::select(boston_scaled, -crim)
+
+# add the new categorical value to scaled data
+boston_scaled <- data.frame(boston_scaled, crime)
+
+summary(boston_scaled$crime)
+
+```
+
+Lets divide the dataset
+```{r}
+set.seed(123)
+n <- 506 #number of rows in boston_scaled
+
+# choose randomly 80% of the rows
+ind <- sample(n,  size = n * 0.8)
+
+# create train set
+train <- boston_scaled[ind,]
+
+# create test set 
+test <- boston_scaled[-ind,]
+```
+
+**5. LDA analysis**
+
+```{r}
+# linear discriminant analysis
+lda.fit <- lda(crime~., data = train)
+
+# print the lda.fit object
+lda.fit
+
+# the function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  graphics::arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- as.numeric(train$crime)
+
+# plot the lda results (select both lines and execute them at the same time!)
+plot(lda.fit, dimen = 2,col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 2)
+```
+>>>>>>> 62b5a878149f9af71cd141650eba54bde9d88e68
 
 

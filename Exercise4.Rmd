@@ -116,14 +116,15 @@ Hints:
 # Boston dataset is available
 
 # calculate the correlation matrix and round it
-cor_matrix <- cor(Boston) 
+cor_matrix <- cor(Boston) %>% 
+  round(digits = 2)
 
 # print the correlation matrix
 cor_matrix
 
 # visualize the correlation matrix
 library(corrplot)
-corrplot(cor_matrix, method="shade")
+corrplot(cor_matrix, method="circle", type = "upper",cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
 
 ```
 
@@ -162,17 +163,19 @@ Hint:
 # Boston dataset is available
 
 # center and standardize variables
-boston_scaled <- "change me!"
+boston_scaled <- scale(Boston)
 
 # summaries of the scaled variables
-
+summary(boston_scaled)
+class(boston_scaled)
 
 # class of the boston_scaled object
 class(boston_scaled)
 
 # change the object to data frame
+boston_scaled_df <- data.frame(boston_scaled)
 
-
+boston_scaled_df
 ```
 
 
@@ -214,20 +217,21 @@ Hints:
 # Boston and boston_scaled are available
 
 # summary of the scaled crime rate
-
+summary(boston_scaled_df$crim)
 
 # create a quantile vector of crim and print it
 bins <- quantile(boston_scaled$crim)
 bins
 
 # create a categorical variable 'crime'
-crime <- cut(boston_scaled$crim, breaks = "change me!", include.lowest = TRUE)
+crime <- cut(boston_scaled_df$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
 
 # look at the table of the new factor crime
+table(crime)
 
 
 # remove original crim from the dataset
-boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled_ <- dplyr::select(boston_scaled, -crim)
 
 # add the new categorical value to scaled data
 boston_scaled <- data.frame(boston_scaled, crime)
