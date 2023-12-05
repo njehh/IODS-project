@@ -92,6 +92,33 @@ tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open
 view(tea)
 glimpse(tea)
 ```
+Dataset has 300 rows and 36 columns. 
+
+```{r}
+tea_col <- c("breakfast","evening", "lunch", "dinner", "always")
+tea_set <- select(tea,any_of(tea_col))
+```
+
+```{r}
+pivot_longer(tea_set, cols = everything()) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free")+
+  geom_bar(fill="lightgreen")+theme(axis.text.x = element_text(angle = 30, hjust = 1, size = 8))
+```
 
 
+```{r}
+library(FactoMineR)
+mca <- MCA(tea_set, graph = FALSE)
 
+```
+
+
+```{r}
+summary(mca)
+```
+
+```{r}
+plot(mca, invisible=c("ind"), graph.type = "classic",habillage = "quali")
+```
+It seems that lunch and dinner tea have large impact on the dimension 1. Those who have tea on lunch are less likely to have tea with dinner. 
+Breakfast, evening and "always" have largest impact on dimensions 2. Interestingly those who have tea always are less likely to not have tea with breakfast. This can be also explained by that those who don't have tea always will probably still enjoy morning tea. It seems logical that those who like tea always, will have tea with dinner and in the evenings.  
