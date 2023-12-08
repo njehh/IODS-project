@@ -96,7 +96,11 @@ Dataset has 300 rows and 36 columns.
 
 ```{r}
 tea_col <- c("breakfast","evening", "lunch", "dinner", "always")
+<<<<<<< HEAD
 tea_set <- subset(tea,select=tea_col)
+=======
+tea_set <- select(tea,any_of(tea_col))
+>>>>>>> 637ff5f9fb1e08d725846e079fbd3b7224d12504
 ```
 
 ```{r}
