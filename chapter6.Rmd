@@ -4,4 +4,87 @@
 date()
 ```
 
+```{r}
+library(tidyverse)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+## 1. Rats
+
+```{r}
+rats <- read_csv("https://raw.githubusercontent.com/njehh/IODS-project/master/Data/rats.csv")
+rats$ID <- as.factor(rats$ID)
+rats$Group <- as.factor(rats$Group)
+glimpse(rats)
+```
+
+```{r}
+ggplot(rats, aes(x = Time, y = Weight, group = ID, colour = Group)) +
+  geom_line(linewidth = 0.8) +
+  ylab("Weight (grams)") +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 10))
+```
+It seems that there is clear difference in weight between the groups. Also, there is an outlier in group 2.
+
+
+Lets standardise the data.
+```{r}
+rats <- rats %>%
+  group_by(Time) %>%
+  mutate(stdweight = (Weight - mean(Weight)) / sd(Weight)) %>%
+  ungroup()
+
+glimpse(rats)
+```
+
+```{r}
+ggplot(rats, aes(x = Time, y = stdweight, group = ID, colour = Group)) +
+  geom_line(linewidth = 0.8) +
+  ylab("Standardised weight") +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 10))
+```
+```{r}
+RATS <- rats %>% 
+  group_by(ID,Group) %>%
+  summarise(mean=mean(Weight)) %>%
+  ungroup()
+```
+
+
+```{r}
+ggplot(RATS, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(Weight), days 1-64")
+```
+
+
+
+
+
+
+
+## 2. BPRS
+
+```{r}
+BPRS <- read_csv("https://raw.githubusercontent.com/njehh/IODS-project/master/Data/bprs.csv")
+BPRS$treatment <- as.factor(BPRS$treatment)
+BPRS$subject <- as.factor(BPRS$subject)
+glimpse(BPRS)
+```
+
+
+```{r}
+ggplot(BPRS, aes(x = week, y = bprs, linetype =subject, colour=subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  theme(legend.position = "none") + 
+  facet_grid(. ~ treatment, labeller = label_both)
+
+```
+
+
+  
+
 
