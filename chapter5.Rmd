@@ -1,0 +1,124 @@
+# Assignment 5 data analysis
+
+```{r}
+date()
+```
+
+##Analysis
+
+**1. Move the country names to rownames (see Exercise 5.5). Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them.**
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+library(corrplot)
+theme_set(theme_bw())
+```
+
+```{r}
+human <- read_csv("https://raw.githubusercontent.com/njehh/IODS-project/master/Data/human.csv")
+glimpse(human)
+```
+
+
+```{r}
+human_ <- column_to_rownames(human, "Country") #Country column to rownames
+
+cor_human <- cor(human_) %>% 
+  round(digits = 2)
+
+corrplot(cor_human, method="circle", type = "lower")
+```
+Some of the variables have high correlation with each other. For example life expectancy has negative correlation with maternal mortality (Mat.Mor) and adolescent birthrate (Ado.Birth), which is not surprising. Life expectancy (Life.Exp) correlates with expected years of schooling (Edu.Exp) ratio of secundary education of females to males (Edu2.FM). 
+Gross national income per capita (GNI) has positive correlation with secundary education ration, expected years of schooling, and life expectancy. GNI has negative correlation with maternal mortality and adolescence birth rate.
+
+```{r}
+ggpairs(human_, columns = c("GNI", "Edu2.FM", "Labo.FM", "Edu.Exp", "Life.Exp"), 
+        progress = FALSE, axisLabels = "none") + theme(aspect.ratio = 1)
+```
+
+```{r}
+ggpairs(human_, columns = c("GNI", "Mat.Mor", "Ado.Birth","Parli.F"), progress = FALSE, axisLabels = "none") + theme(aspect.ratio = 1)
+```
+
+```{r}
+summary(human_)
+```
+**2. Perform principal component analysis (PCA) on the raw (non-standardized) human data. Show the variability captured by the principal components. Draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables.**
+
+
+```{r}
+pca_human <- prcomp(human_) #principal component analysis
+
+summary(pca_human)
+```
+```{r}
+biplot(pca_human, choices = 1:2, cex = c(0.5,1),col = c("darkblue", "deeppink2"))
+```
+
+
+**3. Standardize the variables in the human data and repeat the above analysis. Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to**
+
+```{r}
+human_std <- data.frame(scale(human_))
+summary(human_std)
+```
+
+```{r}
+pca_human_std <- prcomp(human_std)
+summary(pca_human_std)
+```
+
+```{r}
+biplot(pca_human_std, choices = 1:2, cex = c(0.6,1.5), arrow.len=0.1, col = c("darkblue", "deeppink2"), xlim = c(-0.22, 0.22), ylim = c(-0.22, 0.22))
+```
+
+There is large difference between the the PCA of "raw" and standardized data. In the first analysis the data was not centered, meaning that the variables were on different scales. There was high variance in GNI, which practically defined the whole PC1 in the first analysis and the cumulative proportion of the component was nearly 1.
+
+After the data was centered, as it should be for principal component analysis, it is possible to see the actual effect of different variables. For the first primary component (PC1), maternal mortality (Mat.Mor) and adolescent birth rate (Ado.Birth) increase with the PC1, whereas life expectancy (Life.Exp), expected years of schooling (Edu.Exp), gross national income per capita (GNI), and secundary education ratio of females to men (Edu2.FM) decrease PC1.
+PC2 increased with the percentage of female representatives in the parliament (Parli.F) and proportion of females in the labour force compared to men (Labo.FM).
+
+**4.interpretation of the PCA with standardised data**
+It seems that the PC1 is related to variables, which probably associate with birth rate. High maternal mortality and adolescent birth rate probably associate with higher overall birthrate. On the other hand education level of the women and higher GNI probably correlates with lower birthrate. Therefore it could be logical that PCA1 would associate strongly with also the overall birth rate.
+
+PCA2 is defined mainly by the percentage of female representatives in the parliament and proportion of females in the labour force compared to men. It probably tells about the role and possibilities of women in the society. Secundary education ratio of women to men also affects the PCA2, which further supports this interpretation.
+
+
+**5. Tea.**
+
+```{r}
+tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
+view(tea)
+glimpse(tea)
+```
+Dataset has 300 rows and 36 columns. 
+
+```{r}
+tea_col <- c("breakfast","evening", "lunch", "dinner", "always")
+tea_set <- tea[,tea_col]
+```
+
+```{r}
+pivot_longer(tea_set, cols = everything()) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free")+
+  geom_bar(fill="lightgreen")+theme(axis.text.x = element_text(angle = 30, hjust = 1, size = 8))
+```
+
+
+```{r}
+library(FactoMineR)
+mca <- MCA(tea_set, graph = FALSE)
+
+```
+
+
+```{r}
+summary(mca)
+```
+
+```{r}
+plot(mca, invisible=c("ind"), graph.type = "classic",habillage = "quali")
+```
+It seems that lunch and dinner tea have large impact on the dimension 1. Those who have tea on lunch are less likely to have tea with dinner. 
+Breakfast, evening and "always" have largest impact on dimensions 2. Interestingly those who have tea always are less likely to not have tea with breakfast. This can be also explained by that those who don't have tea always will probably still enjoy morning tea. It seems logical that those who like tea always, will have tea with dinner and in the evenings.  
