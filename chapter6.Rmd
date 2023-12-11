@@ -1,0 +1,7 @@
+# Assignment 6 data analysis
+
+```{r}
+date()
+```
+
+
