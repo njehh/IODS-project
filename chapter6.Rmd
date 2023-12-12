@@ -25,6 +25,7 @@ ggplot(rats, aes(x = Time, y = Weight, group = ID, colour = Group)) +
   ylab("Weight (grams)") +
   scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 10))
 ```
+<<<<<<< HEAD
 It seems that there is clear difference in weight between the groups. Also, there is an outlier in group 2.
 
 
@@ -59,6 +60,30 @@ ggplot(RATS, aes(x = Group, y = mean)) +
   scale_y_continuous(name = "mean(Weight), days 1-64")
 ```
 
+=======
+```{r}
+ggplot(rats, aes(x = Group, y = Weight, colour = Group)) +
+  geom_boxplot() +
+  ylab("Weight (grams)")
+```
+It seems that there is clear difference in weight between the groups.
+
+```{r}
+rats %>% 
+  filter(Group != 3) %>% 
+  t.test(Weight ~ Group, data = .)
+```
+```{r}
+rats %>% 
+  filter(Group != 2) %>% 
+  t.test(Weight ~ Group, data = .)
+```
+```{r}
+rats %>% 
+  filter(Group != 1) %>% 
+  t.test(Weight ~ Group, data = .)
+```
+>>>>>>> 54d1443e796a93ab7cf44fc9009414d2b0e17576
 
 
 
